@@ -1,12 +1,46 @@
-# How-to-retrieve-details-of-filtered-columns-in-Flutter-DataTable-SfDataGrid
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-In this article, we will show how to retrieve details of filtered columns in [Flutter DataTable](https://www.syncfusion.com/flutter-widgets/flutter-datagrid).
+void main() {
+  runApp(MyApp());
+}
 
-Initialize the [SfDataGrid](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid-class.html) widget with the necessary properties. The SfDataGrid provides a callback named [onFilterChanged](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/SfDataGrid/onFilterChanged.html), which is triggered after a filter is applied to a specific column through the UI. 
+/// The application that contains datagrid on it.
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-Within the onFilterChanged callback, you can access the details property to retrieve information about the filtered column, such as its name and the filter conditions.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Syncfusion DataGrid Demo',
+      theme: ThemeData(useMaterial3: false),
+      home: MyHomePage(),
+    );
+  }
+}
 
-```dart
+/// The home page of the application which hosts the datagrid.
+class MyHomePage extends StatefulWidget {
+  /// Creates the home page.
+  const MyHomePage({super.key});
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  List<Employee> employees = <Employee>[];
+  late EmployeeDataSource employeeDataSource;
+  late List<String> filteredColumns;
+
+  @override
+  void initState() {
+    super.initState();
+    employees = getEmployeeData();
+    employeeDataSource = EmployeeDataSource(employeeData: employees);
+    filteredColumns = [];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,7 +138,79 @@ Within the onFilterChanged callback, you can access the details property to retr
       ),
     );
   }
-```
 
-You can download this example on [GitHub](https://github.com/SyncfusionExamples/How-to-retrieve-details-of-filtered-columns-in-Flutter-DataTable-SfDataGrid.git).
+  List<Employee> getEmployeeData() {
+    return [
+      Employee(10001, 'James', 'Project Lead', 20000),
+      Employee(10002, 'Kathryn', 'Manager', 30000),
+      Employee(10003, 'Lara', 'Developer', 15000),
+      Employee(10004, 'Michael', 'Designer', 15000),
+      Employee(10005, 'Martin', 'Developer', 15000),
+      Employee(10006, 'Newberry', 'Developer', 15000),
+      Employee(10007, 'Balnc', 'Developer', 15000),
+      Employee(10008, 'Perry', 'Developer', 15000),
+      Employee(10009, 'Gable', 'Developer', 15000),
+      Employee(10010, 'Grimes', 'Developer', 15000),
+    ];
+  }
+}
 
+/// Custom business object class which contains properties to hold the detailed
+/// information about the employee which will be rendered in datagrid.
+class Employee {
+  /// Creates the employee class with required details.
+  Employee(this.id, this.name, this.designation, this.salary);
+
+  /// Id of an employee.
+  final int id;
+
+  /// Name of an employee.
+  final String name;
+
+  /// Designation of an employee.
+  final String designation;
+
+  /// Salary of an employee.
+  final int salary;
+}
+
+/// An object to set the employee collection data source to the datagrid. This
+/// is used to map the employee data to the datagrid widget.
+class EmployeeDataSource extends DataGridSource {
+  /// Creates the employee data source class with required details.
+  EmployeeDataSource({required List<Employee> employeeData}) {
+    _employeeData = employeeData
+        .map<DataGridRow>(
+          (e) => DataGridRow(
+            cells: [
+              DataGridCell<int>(columnName: 'id', value: e.id),
+              DataGridCell<String>(columnName: 'name', value: e.name),
+              DataGridCell<String>(
+                columnName: 'designation',
+                value: e.designation,
+              ),
+              DataGridCell<int>(columnName: 'salary', value: e.salary),
+            ],
+          ),
+        )
+        .toList();
+  }
+
+  List<DataGridRow> _employeeData = [];
+
+  @override
+  List<DataGridRow> get rows => _employeeData;
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+      cells: row.getCells().map<Widget>((e) {
+        return Container(
+          alignment: Alignment.center,
+          padding: EdgeInsets.all(8.0),
+          child: Text(e.value.toString()),
+        );
+      }).toList(),
+    );
+  }
+}
